@@ -76,7 +76,7 @@
                   </Button>
                </SheetTrigger>
 
-               <SheetContent>
+               <SheetContent class="p-4">
                   <SheetHeader>
                      <VisuallyHidden>
                         <SheetTitle></SheetTitle>
@@ -85,10 +85,10 @@
 
                      <SheetClose>
                         <RouterLink
+                           class="flex items-center px-2"
                            :to="{
                               name: 'enhancer-view',
                            }"
-                           class="flex items-center"
                         >
                            <Globe class="w-5 h-5 mr-2" />
                            <span class="font-bold">Enhancer</span>
@@ -100,19 +100,19 @@
                      class="menu-items-container overflow-y-auto h-[calc(100vh-8rem)] mt-4"
                   >
                      <div
-                        class="menu-items-group text-gray-500 flex flex-col gap-y-1 mb-2"
+                        class="menu-items-group flex flex-col gap-y-1 mb-2"
                         v-for="(group, groupIndex) in MENU_ITEMS"
                      >
                         <p
                            :key="groupIndex"
-                           class="menu-items-group-title uppercase font-bold text-xs py-1"
+                           class="menu-items-group-title uppercase font-bold text-xs px-2 py-1 text-zinc-700"
                         >
                            {{ group.title }}
                         </p>
 
-                        <ul>
+                        <ul class="grid gap-y-1 text-zinc-500">
                            <li
-                              class="menu-item flex items-center gap-x-2.5 py-2 cursor-pointer rounded-lg font-medium"
+                              class="menu-item flex items-center gap-x-2.5 p-2 cursor-pointer rounded-lg font-medium hover:bg-zinc-100"
                               v-for="(item, itemIndex) in group.items"
                               :key="itemIndex"
                            >
@@ -126,8 +126,8 @@
                      </div>
                   </div>
 
-                  <div class="flex px-4 py-3 rounded-lg bg-zinc-100">
-                     <span class="text-sm">Appearance</span>
+                  <div class="flex mx-2 px-4 py-3 rounded-lg bg-zinc-100">
+                     <span class="text-sm font-medium">Appearance</span>
                      <span class="spacer grow"></span>
                      <Switch
                         :checked="isDark"
