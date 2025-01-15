@@ -53,4 +53,17 @@ const MENU_ITEMS = [
    },
 ];
 
-export { MENU_ITEMS };
+const SCALE_FACTORS = [2, 4, 8];
+
+const SR_MODELS = [
+   {
+      text: 'SKR',
+      value: 'SKR',
+   },
+   {
+      text: 'MS-LapSRN',
+      value: 'MS_LapSRN',
+   },
+];
+
+export { MENU_ITEMS, SCALE_FACTORS, SR_MODELS };

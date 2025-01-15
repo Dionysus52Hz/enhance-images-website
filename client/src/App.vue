@@ -1,6 +1,6 @@
 <template>
    <header
-      class="sticky z-40 top-0 bg-background/80 backdrop-blur-lg border-b border-border"
+      class="sticky z-40 top-0 bg-background/80 backdrop-blur-lg border-b border-border z-[50]"
    >
       <div class="header-container px-4 py-2 flex items-center">
          <div class="logo mr-2">
@@ -50,10 +50,12 @@
                </DropdownMenuTrigger>
 
                <DropdownMenuContent
-                  class="w-auto pr-10"
+                  class="w-auto"
                   align="end"
                >
-                  <DropdownMenuLabel>Choose language</DropdownMenuLabel>
+                  <DropdownMenuLabel class="pr-10"
+                     >Choose language</DropdownMenuLabel
+                  >
                   <DropdownMenuSeparator />
                   <DropdownMenuRadioGroup v-model="language">
                      <DropdownMenuRadioItem value="en">
@@ -157,9 +159,11 @@
       <router-view></router-view>
    </main>
    <footer>This is footer</footer>
+   <Toaster />
 </template>
 
 <script setup lang="ts">
+   import Toaster from '@/components/ui/toast/Toaster.vue';
    import {
       NavigationMenu,
       NavigationMenuItem,
@@ -195,8 +199,4 @@
    const isDark = ref(false);
 </script>
 
-<style scoped>
-   * {
-      /* border: 1px solid #75757583; */
-   }
-</style>
+<style scoped></style>
