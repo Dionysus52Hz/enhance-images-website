@@ -80,10 +80,8 @@
    import { useForm } from 'vee-validate';
    import { toTypedSchema } from '@vee-validate/zod';
    import * as z from 'zod';
-   import { Button } from '@/components/ui/button';
    import {
       FormControl,
-      FormDescription,
       FormField,
       FormItem,
       FormLabel,
@@ -94,13 +92,13 @@
       SelectContent,
       SelectGroup,
       SelectItem,
-      SelectLabel,
       SelectTrigger,
       SelectValue,
    } from '@/components/ui/select';
    import { SCALE_FACTORS, SR_MODELS } from '@/utils/constants';
-   import type { Image } from '@/utils/types';
+   import type { Image, ImageToProcess } from '@/utils/types';
    import { defineExpose } from 'vue';
+   import { uploads } from '@/services/imagesService';
 
    const formSchema = toTypedSchema(
       z.object({
@@ -122,9 +120,30 @@
       validationSchema: formSchema,
    });
 
-   const onSubmit = handleSubmit((values) => {
-      console.table({ ...values, image: props.image });
-      resetForm();
+   const onSubmit = handleSubmit(async (values) => {
+      try {
+         const data: ImageToProcess = {
+            ...values,
+            image: props.image,
+         };
+
+         const formData = new FormData();
+         formData.append('files', data.image.file);
+         formData.append('names', data.image.name);
+         formData.append('urls', data.image.url);
+         formData.append('sizes', data.image.size.toString());
+         formData.append('widths', data.image.width.toString());
+         formData.append('heights', data.image.height.toString());
+         formData.append('models', data.model);
+         formData.append('factors', data.factor);
+
+         const response = await uploads(formData);
+
+         console.log(response);
+         resetForm();
+      } catch (error) {
+         console.log('Error:', error);
+      }
    });
 
    defineExpose({

@@ -117,6 +117,7 @@
 
          img.onload = () => {
             const image: Image = {
+               file: file,
                url: img.src,
                name: file.name,
                size: file.size,
@@ -129,7 +130,7 @@
          };
          reader.readAsDataURL(file);
       } else {
-         alert('Vui lòng chọn file ảnh định dạng JPEG hoặc PNG.');
+         alert('Vui lòng chọn file ảnh định dạng JPEG, JPG hoặc PNG.');
       }
    };
 </script>

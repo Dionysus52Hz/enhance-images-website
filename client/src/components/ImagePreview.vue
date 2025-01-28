@@ -404,13 +404,10 @@
       FormMessage,
    } from '@/components/ui/form';
    import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-   import { toast } from '@/components/ui/toast';
-
    import { toTypedSchema } from '@vee-validate/zod';
    import { useForm } from 'vee-validate';
-   import { computed, h, useTemplateRef } from 'vue';
+   import { computed, useTemplateRef } from 'vue';
    import * as z from 'zod';
-
    import { Button } from '@/components/ui/button';
    import draggable from 'vuedraggable';
    import { onMounted, ref } from 'vue';
@@ -419,6 +416,7 @@
    import DialogClose from './ui/dialog/DialogClose.vue';
    import { SR_MODELS, SCALE_FACTORS } from '@/utils/constants';
    import IndividualOperationForm from '@/components/IndividualOperationForm.vue';
+   import { uploads } from '@/services/imagesService';
 
    const dragging = ref(false);
    const props = defineProps<{
@@ -449,6 +447,7 @@
          }),
       })
    );
+
    const formSchema2 = toTypedSchema(
       z.object({
          mode: z.enum(['same-operations', 'separate-operations'], {
@@ -470,13 +469,37 @@
    const individualOperationFormRefs = useTemplateRef(
       'individualOperationFormRefs'
    );
-   const onSubmit = handleSubmit((values) => {
-      console.table(values);
-      if (individualOperationFormRefs.value) {
-         individualOperationFormRefs.value.forEach((r) => {
-            r?.onSubmit();
-         });
+
+   const onSubmit = handleSubmit(async (values: any) => {
+      try {
+         // Separate operations mode
+         if (individualOperationFormRefs.value) {
+            individualOperationFormRefs.value.forEach((r) => {
+               r?.onSubmit();
+            });
+         }
+         // Same operations mode
+         else {
+            const formData = new FormData();
+            images.value.forEach((image) => {
+               formData.append('files', image.file);
+               formData.append('names', image.name);
+               formData.append('sizes', image.size.toString());
+               formData.append('urls', image.url.toString());
+               formData.append('widths', image.width.toString());
+               formData.append('heights', image.height.toString());
+               formData.append('models', values.model);
+               formData.append('factors', values.factor);
+            });
+
+            const response = await uploads(formData);
+
+            console.log(response);
+         }
+      } catch (error) {
+         console.log('Error:', error);
       }
+
       resetForm();
    });
 
