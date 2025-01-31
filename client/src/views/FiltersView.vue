@@ -1,6 +1,21 @@
 <template>
    <h1>This is test view</h1>
    <Button @click="testSKR">Test Display Image</Button>
+
+   <div class="w-[500px]">
+      <ImageComparison>
+         <ImageComparisonHeader>
+            <ImageComparisonTitle>Upscale x4</ImageComparisonTitle>
+         </ImageComparisonHeader>
+
+         <ImageComparisonContent
+            :left-image="'https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg'"
+            :right-image="'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg'"
+         >
+         </ImageComparisonContent>
+      </ImageComparison>
+   </div>
+
    <div class="p-4">
       <Card>
          <CardHeader>
@@ -51,6 +66,12 @@
    } from '@/components/ui/card';
    import { getImageById } from '@/services/imagesService';
    import { ref } from 'vue';
+   import {
+      ImageComparison,
+      ImageComparisonHeader,
+      ImageComparisonTitle,
+      ImageComparisonContent,
+   } from '@/components/ui/image-comparison';
 
    const imageURL = ref<undefined | string>(undefined);
    const testSKR = async () => {

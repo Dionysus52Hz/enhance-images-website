@@ -1653,6 +1653,11 @@ vue-tsc@^2.2.0:
     "@volar/typescript" "~2.4.11"
     "@vue/language-core" "2.2.0"
 
+vue3-compare-image@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/vue3-compare-image/-/vue3-compare-image-1.2.5.tgz#ec43d16b066bae116a314efc113e9e4f40d96f26"
+  integrity sha512-E20sBmHDE3eAPOiBeiOgK1BEc+ieXdOdfjw7TaiaDweIOIuisXsM/Lwrw3UdifXImyZ3/+IdwF2ktdbcX35z9A==
+
 vue@^3.5.13:
   version "3.5.13"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.5.13.tgz#9f760a1a982b09c0c04a867903fc339c9f29ec0a"
