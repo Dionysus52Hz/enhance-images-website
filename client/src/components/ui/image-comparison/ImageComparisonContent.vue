@@ -1,9 +1,15 @@
 <template>
-   <div :class="cn('p-6 pt-0 grid', props.class)">
+   <div
+      :class="
+         cn('p-6 pt-0 grid', props.class, {
+            'lg:grid-cols-2 lg:gap-x-4': zoomPreviewInRight,
+         })
+      "
+   >
       <div
          :id="componentId"
          ref="containerRef"
-         class="flex relative overflow-hidden w-100"
+         class="flex relative overflow-hidden w-full rounded-sm outline-1 outline-offset-2 outline-dashed outline-zinc-300"
          tabindex="0"
          data-testid="vci-container"
          :style="containerStyle"
@@ -13,14 +19,14 @@
          @mouseup="finishSliding"
       >
          <img
-            class="flex absolute object-contain h-100"
+            class="image-left flex absolute object-contain h-full"
             ref="leftImageRef"
             :src="leftImage"
             :alt="leftImageAlt"
             :style="leftImageStyle"
          />
          <img
-            class="flex absolute object-contain h-100"
+            class="image-right flex absolute object-contain h-full"
             ref="rightImageRef"
             :src="rightImage"
             :alt="rightImageAlt"
@@ -36,46 +42,84 @@
                :style="lineStyle"
             ></div>
             <div
-               class="handle absolute flex flex-[1_0_auto] jusitfy-center items-center rounded-full border border-white shadow-sm"
+               class="handle absolute flex flex-[1_0_auto] jusitfy-center items-center rounded-full !border !border-white shadow-sm"
                :style="handleDefaultStyle"
             ></div>
          </div>
       </div>
 
-      <div class="flex justify-between py-4">
-         <span
-            class="px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-xs"
-            >Before: <br />{{ leftImageRef?.naturalWidth }} x
-            {{ leftImageRef?.naturalHeight }} px</span
-         >
-         <span
-            class="px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-xs"
-            >After: <br />{{ rightImageRef?.naturalWidth }} x
-            {{ rightImageRef?.naturalHeight }} px</span
-         >
-      </div>
-
-      <div class="grid grid-cols-2 h-[200px]">
+      <div>
          <div
-            class="block relative overflow-hidden h-100 bg-no-repeat"
-            :style="zoomLeftImageStyle"
+            class="flex justify-between py-4"
+            :class="{ 'lg:pt-0 lg:hidden': zoomPreviewInRight }"
          >
-            <img
-               class="absolute object-cover object-center w-100 hidden"
-               :src="leftImage"
-               :alt="leftImageAlt"
-            />
+            <span
+               class="px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-xs"
+               >Before: <br />{{ leftImageRef?.naturalWidth }} x
+               {{ leftImageRef?.naturalHeight }} px</span
+            >
+            <span
+               class="px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-xs"
+               >After: <br />{{ rightImageRef?.naturalWidth }} x
+               {{ rightImageRef?.naturalHeight }} px</span
+            >
          </div>
 
          <div
-            class="block relative overflow-hidden h-100 bg-no-repeat"
-            :style="zoomRightImageStyle"
+            class="grid grid-cols-2 h-[200px] gap-x-4"
+            :class="{
+               'lg:grid-cols-1 lg:gap-y-4 lg:h-full': zoomPreviewInRight,
+            }"
          >
-            <img
-               class="absolute object-cover object-center w-100 hidden"
-               :src="rightImage"
-               :alt="rightImageAlt"
-            />
+            <div
+               class=""
+               :class="{
+                  'lg:h-full lg:w-full lg:flex lg:flex-col lg:gap-y-2':
+                     zoomPreviewInRight,
+               }"
+            >
+               <span
+                  class="hidden px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-xs"
+                  :class="{ 'lg:inline-block lg:w-fit': zoomPreviewInRight }"
+                  >Before: {{ leftImageRef?.naturalWidth }} x
+                  {{ leftImageRef?.naturalHeight }} px</span
+               >
+               <div
+                  class="zoom-left block relative overflow-hidden h-full w-full bg-no-repeat rounded-sm outline-1 outline-dashed outline-zinc-300"
+                  :style="zoomLeftImageStyle"
+               >
+                  <img
+                     class="absolute object-cover object-center w-100 hidden"
+                     :src="leftImage"
+                     :alt="leftImageAlt"
+                  />
+               </div>
+            </div>
+
+            <div
+               class=""
+               :class="{
+                  'lg:w-full lg:h-full lg:flex lg:flex-col lg:gap-y-2':
+                     zoomPreviewInRight,
+               }"
+            >
+               <span
+                  class="hidden px-4 py-2 bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-xs"
+                  :class="{ 'lg:inline-block lg:w-fit': zoomPreviewInRight }"
+                  >After: {{ rightImageRef?.naturalWidth }} x
+                  {{ rightImageRef?.naturalHeight }} px</span
+               >
+               <div
+                  class="zoom-right block relative overflow-hidden h-full w-full bg-no-repeat rounded-sm outline-1 outline-dashed outline-zinc-300"
+                  :style="zoomRightImageStyle"
+               >
+                  <img
+                     class="absolute object-cover object-center w-100 hidden"
+                     :src="rightImage"
+                     :alt="rightImageAlt"
+                  />
+               </div>
+            </div>
          </div>
       </div>
    </div>
@@ -119,14 +163,14 @@
       cursorXPercentage: 0,
       cursorYPercentage: 0,
       hover: true,
-      handleSize: 30,
+      handleSize: 45,
       onSliderPositionChange: () => {},
       onCursorPositionChange: () => {},
-      sliderLineWidth: 1,
+      sliderLineWidth: 1.5,
       sliderPositionPercentage: 0.5,
-      sliderLineColor: 'ffffff',
+      sliderLineColor: '#ffffff',
       vertical: false,
-      zoom: 4,
+      zoom: 3.5,
    });
 
    const emit = defineEmits<{
@@ -187,7 +231,15 @@
    const zoomLeftImageStyle = computed((): CSSProperties => {
       return {
          backgroundImage: `url(${leftImage.value})`,
-         backgroundSize: `${leftImageRef.value?.naturalWidth}px ${leftImageRef.value?.naturalHeight}px`,
+         backgroundSize:
+            // @ts-expect-error
+            rightImageRef.value?.naturalWidth > 1024
+               ? `${rightImageRef.value?.naturalWidth}px ${rightImageRef.value?.naturalHeight}px`
+               : // @ts-expect-error
+                 `${rightImageRef.value?.naturalWidth * 3}px ${
+                    // @ts-expect-error
+                    rightImageRef.value?.naturalHeight * 3
+                 }px`,
          backgroundPosition: `${cursorXPosition.value * 100}% ${
             cursorYPosition.value * 100
          }%`,
@@ -197,7 +249,15 @@
    const zoomRightImageStyle = computed((): CSSProperties => {
       return {
          backgroundImage: `url(${rightImage.value})`,
-         backgroundSize: `${rightImageRef.value?.naturalWidth}px ${rightImageRef.value?.naturalHeight}px`,
+         backgroundSize:
+            // @ts-expect-error
+            rightImageRef.value?.naturalWidth > 1024
+               ? `${rightImageRef.value?.naturalWidth}px ${rightImageRef.value?.naturalHeight}px`
+               : // @ts-expect-error
+                 `${rightImageRef.value?.naturalWidth * 3}px ${
+                    // @ts-expect-error
+                    rightImageRef.value?.naturalHeight * 3
+                 }px`,
          backgroundPosition: `${cursorXPosition.value * 100}% ${
             cursorYPosition.value * 100
          }%`,
@@ -241,18 +301,20 @@
          background: sliderLineColor.value,
          height: horizontal ? '100%' : `${sliderLineWidth.value}px`,
          width: horizontal ? `${sliderLineWidth.value}px` : '100%',
+         boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.1)',
       };
    });
 
    const handleDefaultStyle = computed((): CSSProperties => {
       return {
-         border: `${sliderLineWidth.value}px solid ${sliderLineColor.value}`,
+         border: `${sliderLineWidth.value}px solid ${sliderLineColor.value}!important`,
          height: `${handleSize.value}px`,
          width: `${handleSize.value}px`,
          transform: horizontal ? 'none' : 'rotate(90deg)',
          top: `${
             containerHeight.value * cursorYPosition.value - handleSize.value / 2
          }px`,
+         boxShadow: '0 2px 3px 0 rgb(0 0 0 / 0.1)',
       };
    });
 
@@ -371,6 +433,7 @@
 
    onMounted(() => {
       const containerElement = containerRef.value;
+
       if (props.hover) {
          containerElement?.addEventListener('mousemove', startSliding);
          containerElement?.addEventListener('mouseleave', finishSliding);
@@ -392,9 +455,38 @@
       forceRenderHover();
    });
 
+   watch(rightImage, (value, oldValue) => {
+      const image = new Image();
+      image.src = value;
+      image.onload = () => {
+         if (image.height < 480) {
+            containerHeight.value = 480;
+         } else {
+            containerHeight.value = image.height;
+         }
+      };
+   });
+
+   // watch(leftImageRef, (value, oldValue) => {
+   //    console.log(value?.naturalHeight, oldValue);
+   //    console.log('left image changed');
+   // });
+
+   // watch(rightImageRef, (value, oldValue) => {
+   //    console.log(value?.naturalHeight, oldValue);
+   //    console.log('right image changed');
+   // });
+   const zoomPreviewInRight = ref(false);
    watch([() => containerWidth.value], () => {
       const leftImageWidthHeightRatio =
          leftImageRef.value!.naturalHeight / leftImageRef.value!.naturalWidth;
+
+      if (leftImageWidthHeightRatio >= 0.75) {
+         zoomPreviewInRight.value = true;
+      } else {
+         zoomPreviewInRight.value = false;
+      }
+
       const rightImageWidthHeightRatio =
          rightImageRef.value!.naturalHeight / rightImageRef.value!.naturalWidth;
 
@@ -407,3 +499,11 @@
       containerHeight.value = idealContainerHeight;
    });
 </script>
+
+<style scoped>
+   .image-left,
+   .zoom-left {
+      /* image-rendering: crisp-edges; */
+      image-rendering: pixelated;
+   }
+</style>

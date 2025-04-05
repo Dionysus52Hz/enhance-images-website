@@ -12,4 +12,8 @@ const test2 = async () => {
    return (await instance.get('/enhancers')).data;
 };
 
-export { test, test2 };
+const enhancing = async (id, data) => {
+   return (await instance.post(`/enhancers/${id}`, data)).data;
+};
+
+export { test, test2, enhancing };

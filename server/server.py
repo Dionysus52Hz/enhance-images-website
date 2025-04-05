@@ -1,22 +1,21 @@
-from flask import Flask
-from flask_cors import CORS, cross_origin
-from src.routes.api import api
-from src.db.db import init_app
-
-app = Flask(__name__)
-init_app(app)
+from fastapi import FastAPI
+from src.models.HTTPResponse import ResponseModel
+from src.routes import images, enhancer
+from contextlib import asynccontextmanager
+from src.models.database import init_database
 
 
-CORS(app)
-
-app.register_blueprint(api)
-
-
-@app.route("/")
-@cross_origin()
-def home():
-    return "Welcome to Flask"
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_database()
+    yield
 
 
-if __name__ == "__main__":
-    app.run()
+app = FastAPI(lifespan=lifespan)
+app.include_router(images.router, prefix="/api/v1")
+app.include_router(enhancer.router, prefix="/api/v1")
+
+
+@app.get("/", tags=["Root"])
+def read_root():
+    return ResponseModel(data=None, code=200, message="Hello World!")

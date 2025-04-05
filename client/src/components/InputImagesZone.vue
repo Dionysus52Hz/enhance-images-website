@@ -82,13 +82,22 @@
       <h4 class="text-sm text-zinc-400">JPEG, JPG, PNG up to 50MB</h4>
    </div>
 
-   <ImagePreview :images-queue="imagesQueue"></ImagePreview>
+   <ImagePreview
+      @enhance-start="(e) => emit('enhanceStart', e)"
+      @enhance-end="(e) => emit('enhanceEnd', e)"
+      :images-queue="imagesQueue"
+   ></ImagePreview>
 </template>
 
 <script setup lang="ts">
    import ImagePreview from '@/components/ImagePreview.vue';
    import { ref, useTemplateRef } from 'vue';
    import type { Image } from '@/utils/types';
+
+   const emit = defineEmits<{
+      (e: 'enhanceStart', id: string): void;
+      (e: 'enhanceEnd', id: string): void;
+   }>();
 
    const fileInputRef = useTemplateRef('fileInput');
    const imagesQueue = ref<Image[]>([]);

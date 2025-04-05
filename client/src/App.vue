@@ -5,7 +5,7 @@
       <div class="header-container px-4 py-2 flex items-center">
          <div class="logo mr-2">
             <img
-               src="https://www.saokim.com.vn/blog/wp-content/uploads/2022/04/logo-moi-cua-starbucks.jpg.webp"
+               src="https://cdn.shopify.com/s/files/1/0558/6413/1764/files/Rewrite_Reasons_Why_You_Should_Have_A_Black_White_Logo_Design_1_1024x1024.jpg?v=1700188874"
                alt=""
                class="w-10 aspect-square object-contain"
             />
@@ -155,10 +155,10 @@
       </div>
    </header>
 
-   <main>
+   <main class="">
       <router-view></router-view>
    </main>
-   <footer>This is footer</footer>
+   <footer></footer>
    <Toaster />
 </template>
 

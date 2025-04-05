@@ -2,15 +2,15 @@
    <h1>This is test view</h1>
    <Button @click="testSKR">Test Display Image</Button>
 
-   <div class="w-[500px]">
+   <div class="w-fit">
       <ImageComparison>
          <ImageComparisonHeader>
             <ImageComparisonTitle>Upscale x4</ImageComparisonTitle>
          </ImageComparisonHeader>
 
          <ImageComparisonContent
-            :left-image="'https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg'"
-            :right-image="'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg'"
+            :left-image="'https://cdn-useast1.kapwing.com/static/templates/120x120px-logo-template-full-983dc7ff.webp'"
+            :right-image="'https://cdn-useast1.kapwing.com/static/templates/120x120px-logo-template-full-983dc7ff.webp'"
          >
          </ImageComparisonContent>
       </ImageComparison>

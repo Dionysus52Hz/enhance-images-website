@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import EnhancerView from '@/views/EnhancerView.vue';
 import FiltersView from '@/views/FiltersView.vue';
+import ResultView from '@/views/ResultView.vue';
 
 const routes = [
    {
@@ -12,6 +13,11 @@ const routes = [
       path: '/filters',
       component: FiltersView,
       name: 'filters-view',
+   },
+   {
+      path: '/result/:scale/:original_id/:enhanced_id',
+      component: ResultView,
+      name: 'results-view',
    },
 ];
 

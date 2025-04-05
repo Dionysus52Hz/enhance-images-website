@@ -53,7 +53,7 @@ const MENU_ITEMS = [
    },
 ];
 
-const SCALE_FACTORS = [2, 4, 8];
+const SCALE_FACTORS = [2, 4, 6, 8];
 
 const SR_MODELS = [
    {
@@ -61,8 +61,8 @@ const SR_MODELS = [
       value: 'SKR',
    },
    {
-      text: 'MS-LapSRN',
-      value: 'MS_LapSRN',
+      text: 'NNI',
+      value: 'NNI',
    },
 ];
 

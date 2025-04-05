@@ -1,99 +1,142 @@
-import os
-import cv2
-from flask import Blueprint, jsonify, request, send_file
-from PIL import Image
-from src.db.db import mongo
+from fastapi import APIRouter, HTTPException, status, Body, UploadFile
+from src.models.HTTPResponse import ResponseModel, ErrorResponseModel
 from src.models.images import (
-    create_image,
+    ImageSchema,
+    UpdateImageSchema,
     get_images,
     get_image_by_id,
-    delete_image_by_id,
-    update_image_by_id,
+    create_image,
+    upload_image,
+    update_image,
 )
 
-images = Blueprint("images", __name__, url_prefix="/images")
+router = APIRouter(
+    prefix="/images",
+    tags=["images"],
+    responses={404: {"description": "Not found"}},
+)
 
 
-@images.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "GET":
-        images = get_images()
-        return {
-            "images": images,
-        }
-    else:
-        return {"value": 4}
+@router.get("/")
+async def read_images():
+    images = await get_images()
 
-
-@images.route("/<id>", methods=["GET", "DELETE"])
-def handle_image(id):
-    if request.method == "GET":
-        image_path = get_image_by_id(id)
-        image = cv2.imread(image_path)
-
-        return send_file(
-            image_path,
-            mimetype="image/jpeg",
-        )
-    elif request.method == "DELETE":
-        image = delete_image_by_id(id)
-        return {"image_delete": image}
-
-
-@images.route("/<id>", methods=["PUT"])
-def update_image(id):
-    data = request.get_json()
-    image = update_image_by_id(id, data)
-    return {"image_updated": image}
-
-
-UPLOAD_FOLDER = "src/images/originals"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-
-uploaded_files = []
-uploaded_images = []
-
-
-@images.route("/uploads", methods=["POST"])
-def upload_images():
-
-    uploaded_files.clear()
-    uploaded_images.clear()
-    files = request.files.getlist("files")
-    names = request.form.getlist("names")
-    sizes = request.form.getlist("sizes")
-    widths = request.form.getlist("widths")
-    heights = request.form.getlist("heights")
-    models = request.form.getlist("models")
-    factors = request.form.getlist("factors")
-
-    for i, file in enumerate(files):
-        if file.filename == "":
-            continue
-        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-        file.save(file_path)
-        image_data = {
-            "name": names[i],
-            "size": sizes[i],
-            "width": widths[i],
-            "height": heights[i],
-            "state": "Ready",
-            "path": file_path,
-            "model": models[i],
-            "factor": factors[i],
-        }
-        image_id = create_image(image_data)
-        uploaded_images.append(
-            {
-                "id": image_id,
-                "path": file_path,
-                "model": models[i],
-                "factor": factors[i],
-            }
+    if images is None:
+        return ErrorResponseModel(
+            code=status.HTTP_404_NOT_FOUND,
+            message=f"Cannot retrieve all images",
         )
 
-    return (
-        jsonify({"message": "Files uploaded successfully!", "images": uploaded_images}),
-        200,
+    return ResponseModel(
+        data=images,
+        code=status.HTTP_200_OK,
+        message="Retrieve images successfully!",
     )
+
+
+@router.get("/{image_id}")
+async def read_image_data(image_id: str):
+    try:
+        image = await get_image_by_id(image_id)
+
+        if image is None:
+            return ErrorResponseModel(
+                code=status.HTTP_404_NOT_FOUND,
+                message=f"Cannot retrieve image with id {image_id}",
+            )
+
+        return ResponseModel(
+            data=image,
+            code=status.HTTP_200_OK,
+            message=f"Retrieve image with id {image_id} successfully!",
+        )
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        return ErrorResponseModel(
+            code=status.HTTP_400_BAD_REQUEST,
+            message=str(e),
+        )
+
+
+@router.post("/")
+async def add_image(image: ImageSchema = Body(...)):
+    try:
+
+        image = image.model_dump(by_alias=True, exclude=["id"])
+
+        new_image = await create_image(image)
+
+        if new_image is None:
+            return ErrorResponseModel(
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                message=f"Cannot add new image.",
+            )
+
+        return ResponseModel(
+            data=new_image,
+            code=status.HTTP_200_OK,
+            message="Image add successfully.",
+        )
+
+    except Exception as e:
+        return ErrorResponseModel(
+            code=status.HTTP_400_BAD_REQUEST,
+            message=str(e),
+        )
+
+
+@router.post("/upload")
+async def upload_image_to_cloud(image: UploadFile):
+    try:
+        upload_result = await upload_image(image)
+
+        if upload_result is None:
+            return ErrorResponseModel(
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                message=f"Cannot upload image to cloud.",
+            )
+
+        return ResponseModel(
+            data=upload_result,
+            code=status.HTTP_200_OK,
+            message="Image uploaded successfully.",
+        )
+    except Exception as e:
+        return ErrorResponseModel(
+            code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message=str(e),
+        )
+
+
+@router.put("/{image_id}")
+async def update_image_data(image_id: str, image: UpdateImageSchema = Body(...)):
+    try:
+        image = {
+            k: v for k, v in image.model_dump(by_alias=True).items() if v is not None
+        }
+
+        update_result = await update_image(image_id, image)
+
+        if update_result is None:
+            return ErrorResponseModel(
+                code=status.HTTP_404_NOT_FOUND,
+                message=f"Cannot update image with id {image_id}",
+            )
+
+        return ResponseModel(
+            data=update_result,
+            code=status.HTTP_200_OK,
+            message=f"Update image with id {image_id} successfully!",
+        )
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        return ErrorResponseModel(
+            code=status.HTTP_400_BAD_REQUEST,
+            message=str(e),
+        )

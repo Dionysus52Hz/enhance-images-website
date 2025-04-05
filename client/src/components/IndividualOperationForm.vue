@@ -105,7 +105,7 @@
          factor: z.enum(['2', '4', '8'], {
             required_error: 'You need to select factor',
          }),
-         model: z.enum(['SKR', 'MS_LapSRN'], {
+         model: z.enum(['SKR', 'NNI'], {
             required_error: 'You need to select model',
          }),
       })
