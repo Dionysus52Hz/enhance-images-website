@@ -58,11 +58,15 @@ const SCALE_FACTORS = [2, 4, 6, 8];
 const SR_MODELS = [
    {
       text: 'SKR',
-      value: 'SKR',
+      value: 'skr',
    },
    {
       text: 'NNI',
-      value: 'NNI',
+      value: 'nni',
+   },
+   {
+      text: 'Bilinear',
+      value: 'bilinear',
    },
 ];
 

@@ -1,7 +1,8 @@
 import instance from './axios';
 
 const uploads = async (data: FormData) => {
-   return (await instance.post('/images/uploads', data)).data;
+   console.log(data);
+   return (await instance.post('/images/upload', data)).data;
 };
 
 const getImages = async () => {

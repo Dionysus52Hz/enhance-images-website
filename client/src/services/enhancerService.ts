@@ -12,8 +12,11 @@ const test2 = async () => {
    return (await instance.get('/enhancers')).data;
 };
 
-const enhancing = async (id, data) => {
-   return (await instance.post(`/enhancers/${id}`, data)).data;
+const enhancing = async (data: FormData) => {
+   for (const [key, value] of data.entries()) {
+      console.log(`${key}:`, value);
+   }
+   return (await instance.post(`/enhancers`, data)).data;
 };
 
 export { test, test2, enhancing };
