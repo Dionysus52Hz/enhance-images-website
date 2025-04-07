@@ -63,7 +63,6 @@ async def create_image(image: dict):
             _images_collection = get_collection("images")
 
         new_image = await _images_collection.insert_one(image)
-        print(new_image)
 
         if not new_image:
             return None

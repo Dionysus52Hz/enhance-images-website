@@ -32,6 +32,8 @@ async def enhance_image(form_data: EnhanceFormSchema = Depends()):
         scale_factor = int(form_data.scaleFactor)
 
         sr = None
+        upload_lr_result = None
+        upload_sr_result = None
 
         if model == "skr":
             sr = skr(image, scale_factor)
