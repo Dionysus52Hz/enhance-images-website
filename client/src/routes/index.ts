@@ -15,7 +15,7 @@ const routes = [
       name: 'filters-view',
    },
    {
-      path: '/result/:scale/:original_id/:enhanced_id',
+      path: '/result/:model/:scale',
       component: ResultView,
       name: 'results-view',
    },

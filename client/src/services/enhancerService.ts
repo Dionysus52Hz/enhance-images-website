@@ -16,7 +16,7 @@ const enhancing = async (data: FormData) => {
    for (const [key, value] of data.entries()) {
       console.log(`${key}:`, value);
    }
-   return (await instance.post(`/enhancers`, data)).data;
+   return await instance.post(`/enhancers`, data);
 };
 
 export { test, test2, enhancing };

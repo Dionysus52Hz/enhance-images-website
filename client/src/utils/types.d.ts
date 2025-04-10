@@ -12,3 +12,10 @@ export type ImageToProcess = {
    factor: string;
    image: Image;
 };
+
+export type ServerMessage = {
+   statusCode: number;
+   status: string;
+   message: string;
+   data?: any;
+};

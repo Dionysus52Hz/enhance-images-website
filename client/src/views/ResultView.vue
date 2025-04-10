@@ -1,6 +1,6 @@
 <template>
    <div
-      v-if="originalImage.length > 0 && enhancedImage.length > 0"
+      v-if="originalImage!.length > 0 && enhancedImage!.length > 0"
       class="max-w-[1320px] m-auto p-4 grid lg:grid-cols-3 lg:gap-x-4 gap-y-4 border-x border-dashed"
    >
       <div class="view lg:col-span-2">
@@ -8,7 +8,7 @@
             <ImageComparisonHeader>
                <ImageComparisonTitle>
                   <div class="flex items-center justify-between">
-                     <h3 class="">Upscale {{ scaleFactor }}x result</h3>
+                     <h3 class="">Enhance {{ scaleFactor }} result</h3>
 
                      <div class="flex items-center space-x-2">
                         <Label for="switch-to-comparison-view"
@@ -66,9 +66,7 @@
 
       <div
          class="operations lg:col-span-1 rounded-md border relative lg:h-full lg:h-[calc(100vh-88px)]"
-      >
-         <h1></h1>
-      </div>
+      ></div>
    </div>
 
    <div
@@ -81,8 +79,7 @@
 </template>
 
 <script setup lang="ts">
-   import { getImageById } from '@/services/imagesService';
-   import { onMounted, ref, watch } from 'vue';
+   import { computed, onMounted, ref, watch } from 'vue';
    import {
       ImageComparison,
       ImageComparisonHeader,
@@ -96,6 +93,13 @@
    import { ImageZoomHover } from '@/components/ui/image-zoom-hover';
    import { SCALE_FACTORS } from '@/utils/constants';
 
+   import { useEnhanceResultStore } from '@/stores/enhanceResultStore';
+
+   const enhanceResultStore = useEnhanceResultStore();
+   const enhanceResult = computed(() => {
+      return enhanceResultStore.enhanceResultState;
+   });
+
    const value = ref(0);
    watch(value, (n, o) => {
       console.log(n);
@@ -103,9 +107,8 @@
    const tickLabels = Object.fromEntries(
       SCALE_FACTORS.map((value, index) => [index, value.toString()])
    );
-   console.log(tickLabels);
-   const originalImage = ref<string>('');
-   const enhancedImage = ref<string>('');
+   const originalImage = ref<string | undefined>('');
+   const enhancedImage = ref<string | undefined>('');
    const scaleFactor = ref<string>('');
    const route = useRoute();
    const viewMode = ref<string>('default');
@@ -141,14 +144,11 @@
    const enhancedHeight = ref(0);
 
    onMounted(async () => {
-      originalImage.value = await getImageById(
-         route.params.original_id as string
-      );
-      enhancedImage.value = await getImageById(
-         route.params.enhanced_id as string
-      );
+      originalImage.value = enhanceResult.value.lr;
+      enhancedImage.value = enhanceResult.value.sr;
       scaleFactor.value = route.params.scale as string;
       const { width, height } = await getImageSizeFromBlob(originalImage);
+      console.log(width, height);
       originalHeight.value = height;
       originalWidth.value = width;
 

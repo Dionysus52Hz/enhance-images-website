@@ -145,11 +145,11 @@
       handle?: string | number | boolean;
       handleSize?: number;
       hover?: boolean;
-      leftImage: string;
+      leftImage: string | undefined;
       leftImageAlt?: string;
       onSliderPositionChange?: (position: number) => void;
       onCursorPositionChange?: (x: number, y: number) => void;
-      rightImage: string;
+      rightImage: string | undefined;
       rightImageAlt?: string;
       sliderLineColor?: string;
       sliderLineWidth?: number;
@@ -457,7 +457,7 @@
 
    watch(rightImage, (value, oldValue) => {
       const image = new Image();
-      image.src = value;
+      image.src = value as string;
       image.onload = () => {
          if (image.height < 480) {
             containerHeight.value = 480;

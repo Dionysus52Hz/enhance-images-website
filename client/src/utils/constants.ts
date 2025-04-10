@@ -57,16 +57,20 @@ const SCALE_FACTORS = [2, 4, 6, 8];
 
 const SR_MODELS = [
    {
-      text: 'SKR',
+      text: 'Steering kernel regression',
       value: 'skr',
    },
    {
-      text: 'NNI',
+      text: 'Natural neighbor interpolation',
       value: 'nni',
    },
    {
-      text: 'Bilinear',
+      text: 'Bilinear interpolation',
       value: 'bilinear',
+   },
+   {
+      text: 'Bicubic interpolation',
+      value: 'bicubic',
    },
 ];
 

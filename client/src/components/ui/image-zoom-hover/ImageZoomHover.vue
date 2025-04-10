@@ -49,7 +49,7 @@
 
    const props = defineProps<{
       class?: HTMLAttributes['class'];
-      image: string;
+      image: string | undefined;
       displayMode?: string;
    }>();
 

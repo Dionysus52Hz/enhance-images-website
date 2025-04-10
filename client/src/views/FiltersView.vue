@@ -52,6 +52,7 @@
          <CardFooter> Card Footer </CardFooter>
       </Card>
    </div>
+   <div>{{ width }}</div>
 </template>
 
 <script setup lang="ts">
@@ -77,4 +78,7 @@
    const testSKR = async () => {
       imageURL.value = await getImageById('679887c2dbcb1a686e7b57a4');
    };
+
+   import { useWindowSize } from '@vueuse/core';
+   const { width } = useWindowSize();
 </script>

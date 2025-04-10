@@ -7,7 +7,9 @@
          <Separator />
 
          <ImportZone
+            ref="importZone"
             @imported="handleImported"
+            @clear-queue="clearQueue"
             :scale-factor="scaleFactor"
          />
       </section>
@@ -22,6 +24,7 @@
             :class="'fixed'"
             :style="fixedStyle"
             @change-scale-factor="handleChangeScaleFactor"
+            @clear-queue="clearQueue"
          />
       </section>
 
@@ -49,9 +52,10 @@
    const handleChangeScaleFactor = (scale: number) => {
       scaleFactor.value = scale;
    };
+   const importZone = ref<InstanceType<typeof ImportZone> | null>(null);
 
    const operationsZone = ref<HTMLElement | null>(null);
-   const { width, height } = useWindowSize();
+   const { width } = useWindowSize();
    const fixedStyle = reactive({
       left: '0px',
       width: '0px',
@@ -59,10 +63,17 @@
 
    const updateFixedPosition = () => {
       if (operationsZone.value && width.value >= 1024) {
+         console.log(123);
          const rect = operationsZone.value.getBoundingClientRect();
          fixedStyle.left = rect.left + 'px';
          fixedStyle.width = rect.width + 'px';
       }
+   };
+
+   const clearQueue = () => {
+      console.log(123);
+      imageToProcess.value = null;
+      importZone.value?.removeImage();
    };
 
    onMounted(() => {

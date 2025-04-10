@@ -161,7 +161,7 @@
                         <Button
                            variant="ghost"
                            size="icon"
-                           @click="removeImage"
+                           @click="removeImage(), emit('clearQueue')"
                         >
                            <Trash class="w-5 h-5" />
                         </Button>
@@ -199,6 +199,7 @@
 
    const emit = defineEmits<{
       (e: 'imported', image: Image): void;
+      (e: 'clearQueue'): void;
    }>();
    const props = defineProps<{
       scaleFactor: number;
@@ -248,6 +249,9 @@
    };
 
    const removeImage = () => {
+      console.log(12345);
       imageToProcess.value = null;
    };
+
+   defineExpose({ removeImage });
 </script>
