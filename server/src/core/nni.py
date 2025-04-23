@@ -2,9 +2,12 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+
 from scipy.fft import fft2, ifft2
 from scipy.spatial import Delaunay
 from scipy.interpolate import NearestNDInterpolator, LinearNDInterpolator
+from fastapi import status
+from src.models.SSEResponse import SSEResponseModel
 
 
 def downsample(image, factor):
@@ -303,7 +306,7 @@ def parallel_interpolation(points, values, tri, queryPoints):
     return dict(results)
 
 
-def nni(image, scaleFactor):
+def nni(image, scaleFactor, container: dict):
     start = time.time()
     image = cv2.cvtColor(image, cv2.COLOR_RGB2YCrCb)
     Y, Cr, Cb = cv2.split(image)
@@ -314,9 +317,20 @@ def nni(image, scaleFactor):
 
     A = motionEstimation(Y, centerX, centerY, LRImages)
 
+    yield SSEResponseModel(
+        status="processing",
+        message="Grid mapping",
+        code=status.HTTP_200_OK,
+    ).to_sse()
+
     points, values, SR = gridMapping(LRImages, A, scaleFactor)
     points = np.array(points)
 
+    yield SSEResponseModel(
+        status="processing",
+        message="Specifying pixels to interpolate",
+        code=status.HTTP_200_OK,
+    ).to_sse()
     queryPoints = findQueryPoints(
         (Y.shape[0] * scaleFactor, Y.shape[1] * scaleFactor), points
     )
@@ -326,10 +340,20 @@ def nni(image, scaleFactor):
     print(f"Number of unknown points: {len(queryPoints)}")
     print(f"Total points of SR: {Y.shape[1] * Y.shape[0] * scaleFactor**2}")
 
+    yield SSEResponseModel(
+        status="processing",
+        message="Constructing Delaunay triangulation",
+        code=status.HTTP_200_OK,
+    ).to_sse()
     tri = Delaunay(points)
     result = {tuple(p): 0 for p in queryPoints}
     interpolator = LinearNDInterpolator(points, values)
 
+    yield SSEResponseModel(
+        status="processing",
+        message="Starting interpolate",
+        code=status.HTTP_200_OK,
+    ).to_sse()
     for p in queryPoints:
         fq = interpolate2(points, values, tri, p, alternativeInterpolator=interpolator)
         result[tuple(p)] = fq
@@ -355,4 +379,12 @@ def nni(image, scaleFactor):
 
     SR = cv2.merge([SR, Cr, Cb])
     SR = cv2.cvtColor(SR, cv2.COLOR_YCrCb2RGB)
-    return SR
+
+    container["sr"] = SR
+
+    yield SSEResponseModel(
+        status="completed",
+        message="Processing completed!",
+        code=status.HTTP_200_OK,
+    ).to_sse()
+    # return SR

@@ -2,11 +2,10 @@ import cv2
 import time
 
 from fastapi import status
-
 from src.models.SSEResponse import SSEResponseModel
 
 
-def bilinear(image, scaleFactor, container: dict):
+def bicubic(image, scaleFactor, container: dict):
     yield SSEResponseModel(
         status="processing",
         message="Enhancing resolution",
@@ -18,8 +17,9 @@ def bilinear(image, scaleFactor, container: dict):
     sr = cv2.resize(
         image,
         (width * scaleFactor, height * scaleFactor),
-        interpolation=cv2.INTER_LINEAR,
+        interpolation=cv2.INTER_CUBIC,
     )
+
     container["sr"] = sr
 
     time.sleep(1)

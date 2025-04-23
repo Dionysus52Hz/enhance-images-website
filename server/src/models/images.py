@@ -1,4 +1,6 @@
-from fastapi import UploadFile
+import io
+
+from fastapi import UploadFile, status
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.functional_validators import BeforeValidator
 from typing_extensions import Annotated
@@ -11,6 +13,7 @@ from motor.motor_asyncio import (
 from typing import Optional
 from config import settings
 
+from src.models.SSEResponse import SSEResponseModel
 
 import cloudinary
 import cloudinary.uploader
@@ -103,15 +106,18 @@ async def get_image_by_id(id: str):
         print(e)
 
 
-async def upload_image(image: UploadFile):
+async def upload_image(image_as_bytes: bytes):
     try:
-        upload_result = cloudinary.uploader.upload(image.file)
+        file_bytes = io.BytesIO(image_as_bytes)
+        upload_result = cloudinary.uploader.upload(file_bytes)
 
         if not upload_result:
             return None
 
         file_url = upload_result["secure_url"]
+
         return {"url": file_url}
+
     except Exception as e:
         print(e)
 

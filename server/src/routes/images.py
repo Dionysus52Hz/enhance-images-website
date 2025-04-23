@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Body, UploadFile
+from fastapi.responses import StreamingResponse
 from src.models.HTTPResponse import ResponseModel, ErrorResponseModel
 from src.models.images import (
     ImageSchema,
@@ -9,6 +10,7 @@ from src.models.images import (
     upload_image,
     update_image,
 )
+from src.models.SSEResponse import SSEResponseModel
 
 router = APIRouter(
     prefix="/images",
@@ -91,19 +93,35 @@ async def add_image(image: ImageSchema = Body(...)):
 @router.post("/upload")
 async def upload_image_to_cloud(image: UploadFile):
     try:
-        upload_result = await upload_image(image)
+        content = await image.read()
 
-        if upload_result is None:
-            return ErrorResponseModel(
-                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                message=f"Cannot upload image to cloud.",
-            )
+        async def event_generator():
+            yield SSEResponseModel(
+                status="processing",
+                message="Uploading image",
+                code=status.HTTP_200_OK,
+            ).to_sse()
 
-        return ResponseModel(
-            data=upload_result,
-            code=status.HTTP_200_OK,
-            message="Image uploaded successfully.",
-        )
+            upload_result = await upload_image(content)
+
+            if upload_result is None:
+                yield SSEResponseModel(
+                    status="error",
+                    message="Upload image failed",
+                    code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                ).to_sse()
+                return
+
+            yield SSEResponseModel(
+                status="completed",
+                message="Upload completed",
+                code=status.HTTP_200_OK,
+                data=upload_result,
+            ).to_sse()
+            return
+
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+
     except Exception as e:
         return ErrorResponseModel(
             code=status.HTTP_500_INTERNAL_SERVER_ERROR,

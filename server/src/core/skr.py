@@ -2,14 +2,16 @@ import cv2
 import numpy as np
 import math
 import json
-
 import time
 import numpy as np
 import multiprocessing as mp
+
 from scipy.ndimage import gaussian_filter
 from scipy.linalg import svd, inv, pinv
 from scipy.signal import convolve2d
 from skimage.metrics import structural_similarity
+from src.models.SSEResponse import SSEResponseModel
+from fastapi import status
 
 
 def adaptiveKernel(image, originalY, originalX, kernelSize):
@@ -957,7 +959,7 @@ def ssim(hr, sr):
         raise ValueError("Invalid input image")
 
 
-def skr(image, scaleFactor):
+def skr(image, scaleFactor, container: dict):
 
     # SKR on all channels
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -965,11 +967,23 @@ def skr(image, scaleFactor):
     height, width, channels = image.shape
 
     start = time.time()
+    yield SSEResponseModel(
+        status="processing",
+        message="Computing initial gradients",
+        code=status.HTTP_200_OK,
+    ).to_sse()
+
     upscale, gx, gy = upscaleWithClassicKernel(image, 0.5, 1, 5)
 
     windowSize = 3
     lambda_ = 1
     alpha = 0.05
+
+    yield SSEResponseModel(
+        status="processing",
+        message="Calculating steering matrices",
+        code=status.HTTP_200_OK,
+    ).to_sse()
 
     C = steering(
         gx,
@@ -979,6 +993,13 @@ def skr(image, scaleFactor):
         lambda_,
         alpha,
     )
+
+    yield SSEResponseModel(
+        status="processing",
+        message="Applying steering kernel regression",
+        code=status.HTTP_200_OK,
+    ).to_sse()
+
     smoothing = 0.75
     k = 7
 
@@ -987,4 +1008,11 @@ def skr(image, scaleFactor):
     print(f"Thời gian chạy: {end - start:.6f} giây")
 
     sr = np.clip(sr, 0, 255).astype(np.uint8)
-    return sr
+
+    container["sr"] = sr
+    yield SSEResponseModel(
+        status="completed",
+        message="Processing completed!",
+        code=status.HTTP_200_OK,
+    ).to_sse()
+    # return sr
